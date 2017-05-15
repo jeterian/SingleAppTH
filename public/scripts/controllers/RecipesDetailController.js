@@ -1,98 +1,92 @@
 (function() {
-	'use strict';
+  'use strict';
 
-	//angular module/controller
-	angular.module('app')
-		.controller('RecipeDetailController', function($scope, $location, dataService) {
-			var editing = false;
-			if ($location.path().startsWith('/edit/')) {
-				dataService.getRecipe($location.path().substr(6), (error, recipe) => {
-					//error handling
-					if (error) {
-						return console.log(error);
-					}
+  angular.module('app')
+  .controller('RecipesDetailController', function($scope, $location, dataService) {
+    $scope.errors = [];
 
-					$scope.recipe = recipe;
-					editing = true;
-				});
-			} else {
-				$scope.recipe = {};
-			}
+    if ($location.path() === '/add') {
+      $scope.mode = 'add';
+      $scope.recipe = { ingredients: [], steps: [] };
+    } else {
+      $scope.mode = 'edit';
+      var recipeId = $location.path().split('/').slice(-1)[0];
+      dataService.getRecipe(recipeId, function(response) {
+        $scope.recipe = response.data;
+      });
+    }
 
-			//getCategories 
-			dataService.getCategories((error, categories) => {
-				if (error) {
-					return console.log(error);
-				}
-				$scope.categories = categories;
-			});
+    dataService.getCategories(function(response) {
+      $scope.categories = response.data;
+    });
 
-			//getFood
-			dataService.getFood((error, data) => {
-				if (error) {
-					return console.log(error);
-				}
-				$scope.foodItems = data;
-			});
+    dataService.getFoodItems(function(response) {
+      $scope.foodItems = response.data;
+    });
 
-			//get new items
-			$scope.newItem = function () {
-				if (!$scope.recipe.items) {
-					$scope.recipe.items = [];
-				}
-				$scope.recipe.items.push({});
-			};
+    $scope.saveRecipe = function() {
+      $scope.errors = [];
+      if ($scope.mode === 'add') {
+        $scope.createRecipe();
+      } else {
+        $scope.updateRecipe();
+      } 
+    }
 
-			//new instruction
-			$scope.newInstruction = function () {
-				if(!$scope.recipe.instructions) {
-					$scope.recipe.instructions = [];
-				}
-				$scope.recipe.instructions.push({});
-			};
+    $scope.createRecipe = function() {
+      dataService.createRecipe($scope.recipe, 
+        function(response) {
+          $scope.showAllRecipes();
+        }, 
+        function(response) {
+          $scope.collectErrors(response);
+        }
+      );
+    }
 
-			//delete items
-			$scope.deleteItem = function (index) {
-				$scope.recipe.items.splice(index, 1);
-			};
+    $scope.updateRecipe = function() {
+      dataService.updateRecipe($scope.recipe, 
+        function(response) {
+          $scope.showAllRecipes();
+        }, 
+        function(response) {
+          $scope.collectErrors(response);
+        }
+      );
+    }
 
+    $scope.collectErrors = function(response) {
+      var errors = response.data.errors;
+      for(var error in errors) {
+        var itemErrors = errors[error];
+        for(var itemError in itemErrors) {
+          $scope.errors.push(itemErrors[itemError]);
+        }
+      }
+    }
 
-			//delete instructions
-			$scope.deleteInstruction = function () {
-				$scope.recipe.instructions.splice(index, 1);
-			};
+    $scope.showAllRecipes = function() {
+      $location.path('/');
+    }
 
-			//save recipe
+    $scope.deleteIngredient = function($index) {
+      $scope.recipe.ingredients.splice($index, 1);
+    }
 
-			$scope.saveRecipe = function () {
-				var recipe = $scope.recipe;
+    $scope.addIngredient = function() {
+      $scope.recipe.ingredients.push({
+        foodItem: "", 
+        condition: "", 
+        amount: ""
+      });
+    }
 
-				//handle errors
-				function errResponse(error) {
-					if (error) {
-						const errors - error.errors;
-						$scope.errors = [];
-						for (const error in errors) {
-							if (Object.prototype.hasOwnProperty.call(errors, error)) {
-								for (let i=0; i < errors[error].length; i++) {
-									$scope.errors.push(errors[error][i]);
-								}
-							}
-						}
-					} else {
-						$location.path('/';)
-					}
-				}
+    $scope.deleteStep = function($index) {
+      $scope.recipe.steps.splice($index, 1);
+    }
 
-				if (editing) {
-					dataService.updateRecipe(recipe, _id, recipe, errResponse);
-				} else {
-					dataService.addRecipe(recipe, errResponse);
-				}
-			};
-
-			$scope.cancel = function() {
-				$location.path('/');
-			};
-		});
+    $scope.addStep = function() {
+      $scope.recipe.steps.push({ description: "" });
+    }
+  });
 })();

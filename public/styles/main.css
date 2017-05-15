@@ -1,4 +1,3 @@
-
 body {
   max-width: 800px;
   background: #f6ebe5;
@@ -105,4 +104,8 @@ button {
 
 .pad-top {
   padding-top: 10px;
+}
+
+.hide {
+  display: none;
 }

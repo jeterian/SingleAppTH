@@ -1,78 +1,46 @@
 (function() {
-	'use strict';
+  'use strict';
 
-	angular.module('app')
-		.service('dataService', function($http) {
-			const homeUrl = 'http://localhost:5000';
+  angular.module('app')
+	  .service('dataService', function($http) {
+	    this.getRecipes = function(callback) {
+	      $http.get('/api/recipes')
+	      .then(callback);
+	    }
 
-			this.getRecipes = function(callback) {
-				$http.get('${homeUrl}/api/recipes')
-					.then(success => {
-						callback(null, success.data);
-					});
-			};
+	    this.getRecipesByCategory = function(category, callback) {
+	      $http.get('/api/recipes?category=' + category)
+	      .then(callback);
+	    }
 
-			this.getCategories = function(callback) {
-				$http.get('${homeUrl}/api/categories')
-					.then(success => {
-						callback(null, success.data);
-					}, error => {
-						callback(error.data, null);
-					});
-			};
+	    this.getRecipe = function(recipeId, callback) {
+	      $http.get('/api/recipes/' + recipeId)
+	      .then(callback);
+	    }
 
-			this.getFood = function(callback) {
-				$http.get('${homeUrl}/api/fooditems')
-					.then(success => {
-						callback(null, success.data);
-					}, error => {
-						callback(error.data, null);
-					});
-			};
+	    this.getCategories = function(callback) {
+	      $http.get('/api/categories')
+	      .then(callback);
+	    }
 
-			this.getRecipeCateg = function(callback) {
-				$http.get('${homeUrl}/api/recipes?category=${category}')
-					.then(success => {
-						callback(null, success.data);
-					}, error => {
-						callback(error.data, null);
-					});
-			};
+	    this.getFoodItems = function(callback) {
+	      $http.get('/api/fooditems')
+	      .then(callback);
+	    }
 
-			this.getRecipe = function (id, callback) {
-				$http.get(`${homeUrl}/api/recipes/${id}`)
-					.then(success => {
-						callback(null, success.data);
-					}, error => {
-						callback(error.data, null);
-					});
-				};
+	    this.createRecipe = function(recipe, successCallback, errorCallback) {
+	      $http.post('/api/recipes', recipe)
+	      .then(successCallback, errorCallback);
+	    }
 
-			this.addRecipe = function (recipeData, callback) {
-				$http.post(`${homeUrl}/api/recipes`, recipeData)
-					.then(success => {
-						callback(null, success.data);
-					}, error => {
-						callback(error.data, null);
-					});
-			};
+	    this.updateRecipe = function(recipe, successCallback, errorCallback) {
+	      $http.put('/api/recipes/' + recipe._id, recipe)
+	      .then(successCallback, errorCallback);
+	    }
 
-			this.updateRecipe = function (id, recipeData, callback) {
-				$http.put(`${homeUrl}/api/recipes/${id}`, recipeData)
-					.then(success => {
-						callback(null, success.data);
-					}, error => {
-						callback(error.data, null);
-					});
-			};
-
-			this.removeRecipe = function (id, callback) {
-				$http.delete(`${homeUrl}/api/recipes/${id}`)
-					.then(success => {
-						callback(null, success.data);
-					}, error => {
-						callback(error.data, null);
-					});
-				};
-		});
+	    this.deleteRecipe = function(recipeId, callback) {
+	      $http.delete('/api/recipes/' + recipeId)
+	      .then(callback);
+	    }
+	  });
 })();

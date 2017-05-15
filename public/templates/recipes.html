@@ -1,27 +1,28 @@
 <div class="grid-100 row controls">
   <div class="grid-30">
-    <select ng-options="category as category.name for category in categories track by category.name" ng-change="onCategoryChange()" ng-model="selectedCategory">
-      <option value="">All Categories</option>
+    <select ng-model="category" ng-change="getRecipesByCategory(category)" ng-init="category='All Categories'">
+      <option ng-repeat="category in categories" value="{{category.name}}">{{category.name}}</option>
     </select>
   </div>
   <div class="grid-70">
     <div class="flush-right">
-      <button ng-click="addRecipe()">+ Add Recipe</button>
+      <button ng-click="newRecipe()">+ Add Recipe</button>
     </div>
   </div>
 </div>
 <div class="clear"></div>
-<div class="grid-100 row" ng-hide="recipes">
+
+<div ng-class="{'hide': recipes.length > 0}" class="grid-100 row">
   <div class="grid-70">
     <p>No recipes found!</p>
   </div>
 </div>
 
-<div class="grid-100 row addHover" ng-show="recipes" ng-repeat="recipe in recipes">
-  <a ng-click="editRecipe(recipe)">
+<div ng-repeat="recipe in recipes" class="grid-100 row addHover">
+  <a ng-click="editRecipe(recipe._id)" href="">
     <div class="grid-70">
       <p>
-      {{recipe.name}}
+        {{recipe.name}}: {{recipe.description}}
       </p>
     </div>
   </a>
@@ -29,8 +30,8 @@
     <div class="grid-30">
       <div class="flush-right">
         <p>
-          <a ng-click='editRecipe(recipe)'> <img src="images/edit.svg" height="12px"> Edit </a>
-          <a class="no-action-link" ng-click="deleteRecipe(recipe)"> <img src="images/delete.svg" height="12px"> Delete </a>
+          <a ng-click="editRecipe(recipe._id)" href=""> <img src="images/edit.svg" height="12px"> Edit </a>
+          <a ng-click="deleteRecipe(recipe._id, $index)" class="no-action-link"> <img src="images/delete.svg" height="12px"> Delete </a>
         </p>
       </div>
     </div>
